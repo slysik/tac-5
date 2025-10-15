@@ -61,13 +61,13 @@ TEST_COMMAND_TIMEOUT: 5 minutes
 
 4. **TypeScript Type Check**
    - Preparation Command: None
-   - Command: `cd app/client && bun tsc --noEmit`
+   - Command: `cd app/client && npx tsc --noEmit`
    - test_name: "typescript_check"
    - test_purpose: "Validates TypeScript type correctness without generating output files, catching type errors, missing imports, and incorrect function signatures"
 
 5. **Frontend Build**
    - Preparation Command: None
-   - Command: `cd app/client && bun run build`
+   - Command: `cd app/client && npm run build`
    - test_name: "frontend_build"
    - test_purpose: "Validates the complete frontend build process including bundling, asset optimization, and production compilation"
 
@@ -101,7 +101,7 @@ TEST_COMMAND_TIMEOUT: 5 minutes
   {
     "test_name": "frontend_build",
     "passed": false,
-    "execution_command": "cd app/client && bun run build",
+    "execution_command": "cd app/client && npm run build",
     "test_purpose": "Validates TypeScript compilation, module resolution, and production build process for the frontend application",
     "error": "TS2345: Argument of type 'string' is not assignable to parameter of type 'number'"
   },
