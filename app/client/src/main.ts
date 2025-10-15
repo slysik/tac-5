@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initializeQueryInput();
   initializeFileUpload();
   initializeModal();
+  initializeRandomQuery();
   loadDatabaseSchema();
 });
 
@@ -15,22 +16,22 @@ document.addEventListener('DOMContentLoaded', () => {
 function initializeQueryInput() {
   const queryInput = document.getElementById('query-input') as HTMLTextAreaElement;
   const queryButton = document.getElementById('query-button') as HTMLButtonElement;
-  
+
   queryButton.addEventListener('click', async () => {
     const query = queryInput.value.trim();
     if (!query) return;
-    
+
     queryButton.disabled = true;
     queryButton.innerHTML = '<span class="loading"></span>';
-    
+
     try {
       const response = await api.processQuery({
         query,
         llm_provider: 'openai'  // Default to OpenAI
       });
-      
+
       displayResults(response, query);
-      
+
       // Clear the input field on success
       queryInput.value = '';
     } catch (error) {
@@ -40,11 +41,42 @@ function initializeQueryInput() {
       queryButton.textContent = 'Query';
     }
   });
-  
+
   // Allow Cmd+Enter (Mac) or Ctrl+Enter (Windows/Linux) to submit
   queryInput.addEventListener('keydown', (e) => {
     if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
       queryButton.click();
+    }
+  });
+}
+
+// Random Query Functionality
+function initializeRandomQuery() {
+  const randomQueryButton = document.getElementById('random-query-button') as HTMLButtonElement;
+  const queryInput = document.getElementById('query-input') as HTMLTextAreaElement;
+
+  randomQueryButton.addEventListener('click', async () => {
+    // Disable button and show loading state
+    randomQueryButton.disabled = true;
+    randomQueryButton.innerHTML = '<span class="loading"></span>';
+
+    try {
+      const response = await api.generateRandomQuery();
+
+      if (response.error) {
+        displayError(response.error);
+      } else {
+        // Populate the query input field with the generated query (overwrite existing content)
+        queryInput.value = response.query;
+        // Focus the input so user can see the generated query
+        queryInput.focus();
+      }
+    } catch (error) {
+      displayError(error instanceof Error ? error.message : 'Failed to generate random query');
+    } finally {
+      // Re-enable button and restore text
+      randomQueryButton.disabled = false;
+      randomQueryButton.textContent = 'Generate Random Query';
     }
   });
 }

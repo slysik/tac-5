@@ -71,7 +71,17 @@ export const api = {
       body: JSON.stringify(request)
     });
   },
-  
+
+  // Generate random query
+  async generateRandomQuery(): Promise<RandomQueryResponse> {
+    return apiRequest<RandomQueryResponse>('/generate-random-query', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+  },
+
   // Health check
   async healthCheck(): Promise<HealthCheckResponse> {
     return apiRequest<HealthCheckResponse>('/health');

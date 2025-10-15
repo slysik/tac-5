@@ -16,11 +16,12 @@ from core.data_models import (
     InsightsRequest,
     InsightsResponse,
     HealthCheckResponse,
+    RandomQueryResponse,
     TableSchema,
     ColumnInfo
 )
 from core.file_processor import convert_csv_to_sqlite, convert_json_to_sqlite, convert_jsonl_to_sqlite
-from core.llm_processor import generate_sql
+from core.llm_processor import generate_sql, generate_random_query
 from core.sql_processor import execute_sql_safely, get_database_schema
 from core.insights import generate_insights
 from core.sql_security import (
@@ -204,6 +205,27 @@ async def generate_insights_endpoint(request: InsightsRequest) -> InsightsRespon
             table_name=request.table_name,
             insights=[],
             generated_at=datetime.now(),
+            error=str(e)
+        )
+
+@app.post("/api/generate-random-query", response_model=RandomQueryResponse)
+async def generate_random_query_endpoint() -> RandomQueryResponse:
+    """Generate a random natural language query based on database schema"""
+    try:
+        # Get current database schema
+        schema_info = get_database_schema()
+
+        # Generate random query using LLM
+        query = generate_random_query(schema_info)
+
+        response = RandomQueryResponse(query=query)
+        logger.info(f"[SUCCESS] Random query generated: {query}")
+        return response
+    except Exception as e:
+        logger.error(f"[ERROR] Random query generation failed: {str(e)}")
+        logger.error(f"[ERROR] Full traceback:\n{traceback.format_exc()}")
+        return RandomQueryResponse(
+            query="",
             error=str(e)
         )
 
