@@ -11,6 +11,9 @@ from .sql_security import (
 )
 from .constants import NESTED_DELIMITER, LIST_INDEX_DELIMITER
 
+# Database path - can be overridden for testing
+DATABASE_PATH = "db/database.db"
+
 def sanitize_table_name(table_name: str) -> str:
     """
     Sanitize table name for SQLite by removing/replacing bad characters
@@ -55,7 +58,7 @@ def convert_csv_to_sqlite(csv_content: bytes, table_name: str) -> Dict[str, Any]
         df.columns = [col.lower().replace(' ', '_').replace('-', '_') for col in df.columns]
         
         # Connect to SQLite database
-        conn = sqlite3.connect("db/database.db")
+        conn = sqlite3.connect(DATABASE_PATH)
         
         # Write DataFrame to SQLite
         df.to_sql(table_name, conn, if_exists='replace', index=False)
@@ -127,7 +130,7 @@ def convert_json_to_sqlite(json_content: bytes, table_name: str) -> Dict[str, An
         df.columns = [col.lower().replace(' ', '_').replace('-', '_') for col in df.columns]
         
         # Connect to SQLite database
-        conn = sqlite3.connect("db/database.db")
+        conn = sqlite3.connect(DATABASE_PATH)
         
         # Write DataFrame to SQLite
         df.to_sql(table_name, conn, if_exists='replace', index=False)
@@ -287,7 +290,7 @@ def convert_jsonl_to_sqlite(jsonl_content: bytes, table_name: str) -> Dict[str, 
         df.columns = [col.lower().replace(' ', '_').replace('-', '_') for col in df.columns]
         
         # Connect to SQLite database
-        conn = sqlite3.connect("db/database.db")
+        conn = sqlite3.connect(DATABASE_PATH)
         
         # Write DataFrame to SQLite
         df.to_sql(table_name, conn, if_exists='replace', index=False)
