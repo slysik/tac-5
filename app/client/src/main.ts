@@ -2,6 +2,9 @@ import './style.css'
 import { api } from './api/client'
 
 // Global state
+let isQueryRunning = false;
+let lastQueryTime = 0;
+const DEBOUNCE_DELAY = 300; // milliseconds
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
@@ -12,16 +15,46 @@ document.addEventListener('DOMContentLoaded', () => {
   loadDatabaseSchema();
 });
 
+// Helper function to set query running state
+function setQueryRunning(isRunning: boolean) {
+  isQueryRunning = isRunning;
+
+  const queryInput = document.getElementById('query-input') as HTMLTextAreaElement;
+  const queryButton = document.getElementById('query-button') as HTMLButtonElement;
+  const randomQueryButton = document.getElementById('random-query-button') as HTMLButtonElement;
+
+  if (isRunning) {
+    queryInput.disabled = true;
+    queryButton.disabled = true;
+    randomQueryButton.disabled = true;
+  } else {
+    queryInput.disabled = false;
+    queryButton.disabled = false;
+    randomQueryButton.disabled = false;
+  }
+}
+
 // Query Input Functionality
 function initializeQueryInput() {
   const queryInput = document.getElementById('query-input') as HTMLTextAreaElement;
   const queryButton = document.getElementById('query-button') as HTMLButtonElement;
 
   queryButton.addEventListener('click', async () => {
+    // Check if a query is already running
+    if (isQueryRunning) return;
+
+    // Check debouncing - prevent rapid successive queries
+    const currentTime = Date.now();
+    if (currentTime - lastQueryTime < DEBOUNCE_DELAY) return;
+
     const query = queryInput.value.trim();
     if (!query) return;
 
-    queryButton.disabled = true;
+    // Update debounce timestamp
+    lastQueryTime = currentTime;
+
+    // Set query running state
+    setQueryRunning(true);
     queryButton.innerHTML = '<span class="loading"></span>';
 
     try {
@@ -37,7 +70,7 @@ function initializeQueryInput() {
     } catch (error) {
       displayError(error instanceof Error ? error.message : 'Query failed');
     } finally {
-      queryButton.disabled = false;
+      setQueryRunning(false);
       queryButton.textContent = 'Query';
     }
   });
@@ -45,6 +78,11 @@ function initializeQueryInput() {
   // Allow Cmd+Enter (Mac) or Ctrl+Enter (Windows/Linux) to submit
   queryInput.addEventListener('keydown', (e) => {
     if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+      // Prevent keyboard shortcut if a query is already running
+      if (isQueryRunning) {
+        e.preventDefault();
+        return;
+      }
       queryButton.click();
     }
   });
@@ -56,8 +94,11 @@ function initializeRandomQuery() {
   const queryInput = document.getElementById('query-input') as HTMLTextAreaElement;
 
   randomQueryButton.addEventListener('click', async () => {
-    // Disable button and show loading state
-    randomQueryButton.disabled = true;
+    // Check if a query is already running
+    if (isQueryRunning) return;
+
+    // Set query running state
+    setQueryRunning(true);
     randomQueryButton.innerHTML = '<span class="loading"></span>';
 
     try {
@@ -74,8 +115,8 @@ function initializeRandomQuery() {
     } catch (error) {
       displayError(error instanceof Error ? error.message : 'Failed to generate random query');
     } finally {
-      // Re-enable button and restore text
-      randomQueryButton.disabled = false;
+      // Re-enable all query controls
+      setQueryRunning(false);
       randomQueryButton.textContent = 'Generate Random Query';
     }
   });
