@@ -1,22 +1,16 @@
 import pytest
-import sqlite3
 from pathlib import Path
 from unittest.mock import patch
+from core import file_processor
 from core.file_processor import convert_csv_to_sqlite, convert_json_to_sqlite, convert_jsonl_to_sqlite, flatten_json_object, discover_jsonl_fields
 
 
 @pytest.fixture
 def test_db():
     """Create an in-memory test database"""
-    # Create in-memory database
-    conn = sqlite3.connect(':memory:')
-    
-    # Patch the database connection to use our in-memory database
-    with patch('core.file_processor.sqlite3.connect') as mock_connect:
-        mock_connect.return_value = conn
-        yield conn
-    
-    conn.close()
+    # Patch the database path to use in-memory database
+    with patch.object(file_processor, 'DATABASE_PATH', ':memory:'):
+        yield None
 
 
 @pytest.fixture
