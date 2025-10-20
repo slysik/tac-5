@@ -70,6 +70,12 @@ interface InsightsResponse {
   error?: string;
 }
 
+// Random Query Types
+interface RandomQueryResponse {
+  query: string;
+  error?: string;
+}
+
 // Health Check Types
 interface HealthCheckResponse {
   status: "ok" | "error";

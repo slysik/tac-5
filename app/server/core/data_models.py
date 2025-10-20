@@ -70,6 +70,14 @@ class InsightsResponse(BaseModel):
     generated_at: datetime
     error: Optional[str] = None
 
+# Random Query Models
+class RandomQueryRequest(BaseModel):
+    pass  # No input needed
+
+class RandomQueryResponse(BaseModel):
+    query: str
+    error: Optional[str] = None
+
 # Health Check Models
 class HealthCheckRequest(BaseModel):
     pass
